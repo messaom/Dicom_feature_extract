@@ -25,6 +25,12 @@ The script `Reading_data.py`
 - Makes the correspondence between the RI plan and RI measurement files.
 - Makes the correspondence between the Gamma extracted data and their corresponding plan files. 
 - Saves the Gamma rates into and HDF file for later use.
+Added: 
+- Count verification error: Signals folders where the number of exp images doesn't match the RI plan images: We suggest a complete removal of those and use them later as validation data? 
+Another suggestion, for now. If a mismatch is detected and folder are removed, we suggest to remove the RI folder and execute the script again.
+
+--- Fixed: 
+    Added a dry run that counts files, if there's a mismatch the folders are automatically moved to a local folder named Validation (No need to treat it manually)
 
 to implement: 
     - Extraction and export of images.

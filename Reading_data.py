@@ -10,6 +10,7 @@ import h5py
 pass_rate={}
 dest_dir_rp= './RP_files/' # Change accordingly
 dest_dir_ri= './RI_files/'
+validation_dir="./Validation_dir/"
 root_dir = '../2024/'
 associated_file=[]
 
@@ -26,12 +27,13 @@ def create_directory(directory_path):
 
 create_directory(dest_dir_rp)
 
+
 # Extract gamma passrate and dist/dose tolerence
 # Copies the RP files into a new folder
 for root, dirs, files in os.walk(root_dir):
     for dir_name in dirs:
         folder_path = os.path.join(root, dir_name)
-        print(f"Processing folder: {folder_path}")
+        #print(f"Processing folder: {folder_path}")
         
         for file_path in glob.glob(os.path.join(folder_path, '*.dat')):
             
@@ -59,37 +61,57 @@ for root, dirs, files in os.walk(root_dir):
 img_dict={}
 verif_images={}
 meta_data={}
-create_directory(dest_dir_ri)
+
+# Dry run 
+create_directory(validation_dir)
+for root, dirs, files in os.walk(root_dir):
+    for dir_name in dirs:
+        folder_path = os.path.join(root, dir_name)
+        count_verif=0
+        count_calcimg=0
+
+        
+        for file_path in glob.glob(os.path.join(folder_path, 'RI.*')):
+            if file_path.split("/")[-1][3:-3] in list(i[3:-3] for i in pass_rate.keys()) :
+                count_verif+=1
+            else:        
+                count_calcimg+=1
+        if count_calcimg!=count_verif:
+            print(f"{folder_path} ---> Incorrect count: Check files")
+            shutil.move(folder_path,validation_dir)
+
 
 # Iterate over folders in the root dir
-
+create_directory(dest_dir_ri)
 for root, dirs, files in os.walk(root_dir):
     for dir_name in dirs:
         folder_path = os.path.join(root, dir_name)
         #print(f"Processing folder: {folder_path}")
-        std_info={}
+        #std_info={}
         # Iterate over files in the folder
         count_verif=0
         count_calcimg=0
-        print(folder_path)
+
         
         for file_path in glob.glob(os.path.join(folder_path, 'RI.*')):
             f=dcm.dcmread(file_path) # Read the file 
             if file_path.split("/")[-1][3:-3] in list(i[3:-3] for i in pass_rate.keys()) :
                 verif_images[file_path.split("/")[-1]]=f.pixel_array
-                std_info["Study Description"] = f.StudyDescription
+                #std_info["Study Description"] = f.StudyDescription
                 count_verif+=1
             else:
                 img_dict[file_path.split("/")[-1]]=f.pixel_array
                 pid=f.PatientID
                 #for file_path in glob.glob(os.path.join(folder_path,'RP.*')):
                 shutil.copy(file_path, dest_dir_ri)
-                std_info["Patient ID"]=f.PatientID    
-                std_info["Patient Birth Date"]=f.PatientBirthDate
-                std_info["Patient Sex"]=f.PatientSex
+                # std_info["Patient ID"]=f.PatientID    
+                # std_info["Patient Birth Date"]=f.PatientBirthDate
+                # std_info["Patient Sex"]=f.PatientSex
                 
-                meta_data[pid]=std_info        
+                #meta_data[pid]=std_info        
                 count_calcimg+=1
+        if count_calcimg!=count_verif:
+            print(f"{folder_path} ---> Missed incorrect count: Check files")
                 
 print(f" # Images Plan {len(img_dict)}")
 print(f" # Images verif {len(verif_images)}")
@@ -99,9 +121,16 @@ img_files=list(img_dict.keys())
 verif_files=list(verif_images.keys())
 img_files.sort()
 verif_files.sort()
+
+
+with open('correspondence_verif.dat','w') as f: 
+    for i,j in zip(img_files,verif_files):
+        f.write(f"{i} <-----> {j} \n")
+        
+        
 clean_data_image=[]
 for im1, im2 in zip(img_files,verif_files):
-    print(im1,im2)
+
     clean_data_image.append([img_dict[im1],verif_images[im2]])
     
     
