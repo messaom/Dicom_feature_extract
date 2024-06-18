@@ -112,10 +112,11 @@ gam=list(pass_rate.keys())
 for im1, im2 in zip(img_files,verif_files):
     pass_key='RA.'+im2[3:-4]+'.dat'
     if pass_key in gam:
-        input_image=img_dict[im1].flatten()
-        verif_image=verif_images[im2].flatten()
-        input_image=(input_image-np.min(input_image))/(np.max(input_image)-np.min(input_image))
-        verif_image=(verif_image-np.min(verif_image))/(np.max(verif_image)-np.min(verif_image))
+        # Check later
+        # input_image=img_dict[im1].flatten()
+        # verif_image=verif_images[im2].flatten()
+        # input_image=(input_image-np.min(input_image))/(np.max(input_image)-np.min(input_image))
+        # verif_image=(verif_image-np.min(verif_image))/(np.max(verif_image)-np.min(verif_image))
         gamma = pass_rate[pass_key][0] # Or 1 for regression values
         image_gamma[im1]=pass_rate[pass_key]    
         gamma_val.append(gamma)
