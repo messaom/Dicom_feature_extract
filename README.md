@@ -42,3 +42,5 @@ The script `feats_extract_RP.py`:
 - Calculates some statistical features over the images  
 - Matches the RI plan files with their corresponding beam number in the RP file
 - Creates a DataFrame with the features and saves it in an HDF file for later use
+
+Comment: If we use smote it needs to be done only on the training data (so it doesn't create synthetic sets that would be used for testing! ) needs to happen after splitting the data
